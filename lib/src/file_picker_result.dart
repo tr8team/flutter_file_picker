@@ -1,4 +1,3 @@
-import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 
@@ -29,9 +28,6 @@ class FilePickerResult {
 
   /// A `List<String>` containing all names from picked files with its extensions.
   List<String?> get names => files.map((file) => file.name).toList();
-
-  /// Retrieves a `List<XFile` with all the files as `XFile` objects.
-  List<XFile> get xFiles => files.map((file) => file.xFile).toList();
 
   @override
   bool operator ==(Object other) {

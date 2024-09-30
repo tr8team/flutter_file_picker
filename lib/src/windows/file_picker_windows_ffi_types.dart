@@ -71,7 +71,7 @@ typedef GetSaveFileNameWDart = int Function(
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/ns-shlobj_core-browseinfoa
-final class BROWSEINFOA extends Struct {
+class BROWSEINFOA extends Struct {
   /// A handle to the owner window for the dialog box.
   external Pointer hwndOwner;
 
@@ -112,7 +112,7 @@ final class BROWSEINFOA extends Struct {
 ///
 /// Reference:
 /// https://docs.microsoft.com/en-us/windows/win32/api/commdlg/ns-commdlg-openfilenamew
-final class OPENFILENAMEW extends Struct {
+class OPENFILENAMEW extends Struct {
   /// The length, in bytes, of the structure. Use sizeof [OPENFILENAMEW] for this parameter.
   @Uint32()
   external int lStructSize;
@@ -219,9 +219,3 @@ const ofnFileMustExist = 0x00001000;
 
 /// Hides the Read Only check box.
 const ofnHideReadOnly = 0x00000004;
-
-/// Causes the Save As dialog box to generate a message box if the selected file already exists. The user must confirm whether to overwrite the file.
-const ofnOverwritePrompt = 0x00000002;
-
-/// Restores the current directory to its original value if the user changed the directory while searching for files.
-const ofnNoChangeDir = 0x00000008;

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:file_picker/src/linux/dialog_handler.dart';
@@ -7,10 +6,6 @@ import 'package:file_picker/src/platform_file.dart';
 import 'package:file_picker/src/utils.dart';
 
 class FilePickerLinux extends FilePicker {
-  static void registerWith() {
-    FilePicker.platform = FilePickerLinux();
-  }
-
   @override
   Future<FilePickerResult?> pickFiles({
     String? dialogTitle,
@@ -23,8 +18,6 @@ class FilePickerLinux extends FilePicker {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    bool readSequential = false,
-    int compressionQuality = 30,
   }) async {
     final String executable = await _getPathToExecutable();
     final dialogHandler = DialogHandler(executable);
@@ -85,7 +78,6 @@ class FilePickerLinux extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    Uint8List? bytes,
     bool lockParentWindow = false,
   }) async {
     final executable = await _getPathToExecutable();

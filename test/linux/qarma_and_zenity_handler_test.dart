@@ -1,5 +1,4 @@
 @TestOn('linux')
-library;
 
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
@@ -21,27 +20,24 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.audio, null),
-        equals(
-            'Audio Files | *.[aA][aA][cC] *.[mM][iI][dD][iI] *.[mM][pP]3 *.[oO][gG][gG] *.[wW][aA][vV]'),
+        equals('*.aac *.midi *.mp3 *.ogg *.wav'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.image, null),
-        equals(
-            'Image Files | *.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG]'),
+        equals('*.bmp *.gif *.jpeg *.jpg *.png'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.media, null),
         equals(
-          'Media Files | *.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV] *.[bB][mM][pP] *.[gG][iI][fF] *.[jJ][pP][eE][gG] *.[jJ][pP][gG] *.[pP][nN][gG]',
+          '*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv *.bmp *.gif *.jpeg *.jpg *.png',
         ),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.video, null),
-        equals(
-            'Video Files | *.[aA][vV][iI] *.[fF][lL][vV] *.[mM][kK][vV] *.[mM][oO][vV] *.[mM][pP]4 *.[mM][pP][eE][gG] *.[wW][eE][bB][mM] *.[wW][mM][vV]'),
+        equals('*.avi *.flv *.mkv *.mov *.mp4 *.mpeg *.webm *.wmv'),
       );
     });
 
@@ -50,12 +46,12 @@ void main() {
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart']),
-        equals('Custom Files | *.[dD][aA][rR][tT]'),
+        equals('*.dart'),
       );
 
       expect(
         dialogHandler.fileTypeToFileFilter(FileType.custom, ['dart', 'html']),
-        equals('Custom Files | *.[dD][aA][rR][tT] *.[hH][tT][mM][lL]'),
+        equals('*.dart *.html'),
       );
     });
   });
@@ -136,7 +132,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Select output file: --save --confirm-overwrite --filename=test.out"""),
+            """--file-selection --title Select output file: --save --filename=test.out"""),
       );
     });
 
@@ -227,7 +223,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/"""),
+            """--file-selection --title Save as: --save --filename=/home/user/Desktop/"""),
       );
     });
 
@@ -244,7 +240,7 @@ void main() {
       expect(
         cliArguments.join(' '),
         equals(
-            """--file-selection --title Save as: --save --confirm-overwrite --filename=/home/user/Desktop/output.pdf"""),
+            """--file-selection --title Save as: --save --filename=/home/user/Desktop/output.pdf"""),
       );
     });
   });

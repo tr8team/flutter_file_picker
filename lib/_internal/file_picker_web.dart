@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:js_interop';
-import 'package:web/web.dart';
+import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -12,23 +11,24 @@ class FilePickerWeb extends FilePicker {
 
   final int _readStreamChunkSize = 1000 * 1000; // 1 MB
 
+  static final FilePickerWeb platform = FilePickerWeb._();
+
   FilePickerWeb._() {
     _target = _ensureInitialized(_kFilePickerInputsDomId);
   }
 
   static void registerWith(Registrar registrar) {
-    FilePicker.platform = FilePickerWeb._();
+    FilePicker.platform = platform;
   }
 
   /// Initializes a DOM container where we can host input elements.
   Element _ensureInitialized(String id) {
-    Element? target = document.querySelector('#$id');
+    Element? target = querySelector('#$id');
     if (target == null) {
-      final Element targetElement = document.createElement(
-        'flt-file-picker-inputs',
-      )..id = id;
+      final Element targetElement = Element.tag('flt-file-picker-inputs')
+        ..id = id;
 
-      document.querySelector('body')!.children.add(targetElement);
+      querySelector('body')!.children.add(targetElement);
       target = targetElement;
     }
     return target;
@@ -46,8 +46,6 @@ class FilePickerWeb extends FilePicker {
     bool withData = true,
     bool withReadStream = false,
     bool lockParentWindow = false,
-    bool readSequential = false,
-    int compressionQuality = 20,
   }) async {
     if (type != FileType.custom && (allowedExtensions?.isNotEmpty ?? false)) {
       throw Exception(
@@ -58,8 +56,7 @@ class FilePickerWeb extends FilePicker {
         Completer<List<PlatformFile>?>();
 
     String accept = _fileType(type, allowedExtensions);
-    HTMLInputElement uploadInput = HTMLInputElement();
-    uploadInput.type = 'file';
+    InputElement uploadInput = FileUploadInputElement() as InputElement;
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
@@ -71,13 +68,13 @@ class FilePickerWeb extends FilePicker {
       onFileLoading(FilePickerStatus.picking);
     }
 
-    void changeEventListener(Event e) async {
+    void changeEventListener(e) {
       if (changeEventTriggered) {
         return;
       }
       changeEventTriggered = true;
 
-      final FileList files = uploadInput.files!;
+      final List<File> files = uploadInput.files!;
       final List<PlatformFile> pickedFiles = [];
 
       void addPickedFile(
@@ -102,12 +99,7 @@ class FilePickerWeb extends FilePicker {
         }
       }
 
-      for (int i = 0; i < files.length; i++) {
-        final File? file = files.item(i);
-        if (file == null) {
-          continue;
-        }
-
+      for (File file in files) {
         if (withReadStream) {
           addPickedFile(file, null, null, _openFileReadStream(file));
           continue;
@@ -116,34 +108,27 @@ class FilePickerWeb extends FilePicker {
         if (!withData) {
           final FileReader reader = FileReader();
           reader.onLoadEnd.listen((e) {
-            String? result = (reader.result as JSString?)?.toDart;
-            addPickedFile(file, null, result, null);
+            addPickedFile(file, null, reader.result as String?, null);
           });
-          reader.readAsDataURL(file);
+          reader.readAsDataUrl(file);
           continue;
         }
 
-        final syncCompleter = Completer<void>();
         final FileReader reader = FileReader();
         reader.onLoadEnd.listen((e) {
-          ByteBuffer? byteBuffer = (reader.result as JSArrayBuffer?)?.toDart;
-          addPickedFile(file, byteBuffer?.asUint8List(), null, null);
-          syncCompleter.complete();
+          addPickedFile(file, reader.result as Uint8List?, null, null);
         });
         reader.readAsArrayBuffer(file);
-        if (readSequential) {
-          await syncCompleter.future;
-        }
       }
     }
 
-    void cancelledEventListener(Event _) {
-      window.removeEventListener('focus', cancelledEventListener.toJS);
+    void cancelledEventListener(_) {
+      window.removeEventListener('focus', cancelledEventListener);
 
       // This listener is called before the input changed event,
       // and the `uploadInput.files` value is still null
       // Wait for results from js to dart
-      Future.delayed(Duration(seconds: 1)).then((value) {
+      Future.delayed(Duration(milliseconds: 500)).then((value) {
         if (!changeEventTriggered) {
           changeEventTriggered = true;
           filesCompleter.complete(null);
@@ -152,26 +137,15 @@ class FilePickerWeb extends FilePicker {
     }
 
     uploadInput.onChange.listen(changeEventListener);
-    uploadInput.addEventListener('change', changeEventListener.toJS);
-    uploadInput.addEventListener('cancel', cancelledEventListener.toJS);
+    uploadInput.addEventListener('change', changeEventListener);
 
     // Listen focus event for cancelled
-    window.addEventListener('focus', cancelledEventListener.toJS);
+    window.addEventListener('focus', cancelledEventListener);
 
     //Add input element to the page body
-    Node? firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
+    _target.children.clear();
     _target.children.add(uploadInput);
     uploadInput.click();
-
-    firstChild = _target.firstChild;
-    while (firstChild != null) {
-      _target.removeChild(firstChild);
-      firstChild = _target.firstChild;
-    }
 
     final List<PlatformFile>? files = await filesCompleter.future;
 
@@ -211,24 +185,9 @@ class FilePickerWeb extends FilePicker {
           : start + _readStreamChunkSize;
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
-      await EventStreamProviders.loadEvent.forTarget(reader).first;
-      final JSAny? readerResult = reader.result;
-      if (readerResult == null) {
-        continue;
-      }
-
-      // Handle the ArrayBuffer type. This maps to a `ByteBuffer` in Dart.
-      if (readerResult.isA<JSArrayBuffer>()) {
-        yield (readerResult as JSArrayBuffer).toDart.asUint8List();
-        start += _readStreamChunkSize;
-        continue;
-      }
-
-      if (readerResult.isA<JSArray>()) {
-        // Assume this is a List<int>.
-        yield (readerResult as JSArray).toDart.cast<int>();
-        start += _readStreamChunkSize;
-      }
+      await reader.onLoad.first;
+      yield reader.result as List<int>;
+      start += _readStreamChunkSize;
     }
   }
 }

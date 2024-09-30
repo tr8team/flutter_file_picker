@@ -2,8 +2,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/linux/kdialog_handler.dart';
 import 'package:file_picker/src/linux/qarma_and_zenity_handler.dart';
 
-import 'package:file_picker/src/utils.dart';
-
 abstract class DialogHandler {
   factory DialogHandler(String pathToExecutable) {
     pathToExecutable = pathToExecutable.toLowerCase();
@@ -42,11 +40,4 @@ abstract class DialogHandler {
   /// Converts the result string (stdout) of `qarma`, `zenity` or `kdialog`
   /// into a [List<String>] of file paths.
   List<String> resultStringToFilePaths(String fileSelectionResult);
-
-  static String toCaseInsensitive(String filter) {
-    return filter
-        .split("")
-        .map((e) => isAlpha(e) ? "[${e.toLowerCase()}${e.toUpperCase()}]" : e)
-        .join();
-  }
 }

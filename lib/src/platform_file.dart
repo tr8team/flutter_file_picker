@@ -1,8 +1,6 @@
 import 'dart:async';
-// ignore: unnecessary_import
 import 'dart:typed_data';
 
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 
 class PlatformFile {
@@ -39,7 +37,7 @@ class PlatformFile {
     if (kIsWeb) {
       /// https://github.com/miguelpruivo/flutter_file_picker/issues/751
       throw '''
-      On web `path` is unavailable and accessing it causes this exception.
+      On web `path` is always `null`,
       You should access `bytes` property instead,
       Read more about it [here](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ)
       ''';
@@ -50,7 +48,7 @@ class PlatformFile {
   /// File name including its extension.
   final String name;
 
-  /// Byte data for this file. Particularly useful if you want to manipulate its data
+  /// Byte data for this file. Particurlarly useful if you want to manipulate its data
   /// or easily upload to somewhere else.
   /// [Check here in the FAQ](https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ) an example on how to use it to upload on web.
   final Uint8List? bytes;
@@ -72,15 +70,6 @@ class PlatformFile {
 
   /// File extension for this file.
   String? get extension => name.split('.').last;
-
-  /// Retrieves this as a XFile
-  XFile get xFile {
-    if (kIsWeb) {
-      return XFile.fromData(bytes!, name: name, length: size);
-    } else {
-      return XFile(path!, name: name, bytes: bytes, length: size);
-    }
-  }
 
   @override
   bool operator ==(Object other) {

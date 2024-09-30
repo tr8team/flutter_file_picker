@@ -1,5 +1,4 @@
 @TestOn('linux || mac-os')
-library;
 
 import 'dart:io';
 import 'package:file_picker/src/utils.dart';
@@ -103,57 +102,6 @@ void main() {
       );
 
       expect(platformFiles.length, equals(filePaths.length));
-    });
-
-    test(
-        'should tranform a list of file paths containing a path into a list of PlatformFiles',
-        () async {
-      final filePaths = <String>['test'];
-
-      final platformFiles = await filePathsToPlatformFiles(
-        filePaths,
-        true,
-        false,
-      );
-
-      expect(platformFiles.length, equals(filePaths.length));
-    });
-
-    test(
-        'should transform a list of file paths containing a valid path into a list of PlatformFiles',
-        () async {
-      final filePaths = <String>['test/test_files/test.pdf'];
-
-      final platformFiles = await filePathsToPlatformFiles(
-        filePaths,
-        false,
-        true,
-      );
-
-      expect(platformFiles.length, equals(filePaths.length));
-    });
-  });
-
-  group('runExecutableWithArguments()', () {
-    test('should catch an exception when sending an empty filepath', () async {
-      final filepath = '';
-
-      expect(
-        () async => await isExecutableOnPath(filepath),
-        throwsA(isA<Exception>()),
-      );
-    });
-  });
-
-  group('isAlpha()', () {
-    test('should identify alpha chars', () async {
-      expect(isAlpha('a'), equals(true));
-      expect(isAlpha('A'), equals(true));
-      expect(isAlpha('z'), equals(true));
-      expect(isAlpha('Z'), equals(true));
-      expect(isAlpha('.'), equals(false));
-      expect(isAlpha('*'), equals(false));
-      expect(isAlpha(' '), equals(false));
     });
   });
 }

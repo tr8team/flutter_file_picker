@@ -15,7 +15,7 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdk 34
+    compileSdkVersion 30
 
     lintOptions {
         disable 'InvalidPackage'
@@ -23,8 +23,8 @@ android {
 
     defaultConfig {
         applicationId "com.mr.flutter.plugin.filepicker.example"
-        minSdk flutter.minSdkVersion
-        targetSdk 34
+        minSdkVersion 16
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -36,8 +36,6 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-
-    namespace 'com.mr.flutter.plugin.filepicker.example'
 }
 
 flutter {
